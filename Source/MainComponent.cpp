@@ -276,10 +276,6 @@ double MainComponent::phasor() {
 }
 
 float MainComponent::ranSamp() {
-    /*float random = ((float)rand()) / (float)RAND_MAX;
-    float r = random * 2;
-    return r - 1;
-    */
     return random.nextFloat() * 2 - 1;
 
 }
@@ -618,7 +614,6 @@ void MainComponent::createImpulseTable(AudioSampleBuffer& waveTable) {
     for (auto i = 0; i < tableSize; ++i) {
         for (auto h = 1; h < numHarmonics; h++) {
             samples[i] += std::sin(phase * h) / numHarmonics;
-            //channelData[i] += sin(phasorValue * TwoPi * h) * freqLevel;
         }
         phase += phaseDelta;
     }
@@ -640,7 +635,6 @@ void MainComponent::createSquareTable(AudioSampleBuffer& waveTable) {
         for (auto h = 1; h < numHarmonics; h++) {
             if (h % 2 == 1) {
                 samples[i] += std::sin(phase * h) / numHarmonics / h;
-                //channelData[i] += sin(phasorValue * TwoPi * h) * freqLevel;
             }
         }
         phase += phaseDelta;
@@ -661,7 +655,6 @@ void MainComponent::createSawtoothTable(AudioSampleBuffer& waveTable) {
     for (auto i = 0; i < tableSize; ++i) {
         for (auto h = 1; h < numHarmonics; h++) {
             samples[i] += std::sin(phase * h) / numHarmonics / h;
-            //channelData[i] += sin(phasorValue * TwoPi * h) * freqLevel;
         }
         phase += phaseDelta;
     }
@@ -682,7 +675,6 @@ void MainComponent::createTriangleTable(AudioSampleBuffer& waveTable) {
         for (auto h = 1; h < numHarmonics; h++) {
             if (h % 2 == 1) {
                 samples[i] += std::sin(phase * h) / numHarmonics / (h * h);
-                //channelData[i] += sin(phasorValue * TwoPi * h) * freqLevel;
             }
         }
         phase += phaseDelta;
