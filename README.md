@@ -1,3 +1,18 @@
 # WaveLab
 Synthesis and visualization of waveforms in real-time.
+<img width="712" alt="WaveLab" src="https://user-images.githubusercontent.com/15708632/210482256-e8ad7935-48fd-409c-b642-600887dba4ec.png">
+
 This project utilizes three foundational JUCE audio classes: the AudioDeviceManager, AudioSourcePlayer and AudioSource. The app connects these components together to form a flow of audio samples that originate at the audio source and end at the host's hardware output device.
+
+The AudioDeviceManager class manages the computer's audio devices and to configure properties for the audio session, for example, setting the sampling rate, block size and number of input and output channels the app will use. The sample rate determines the number of samples per second per channel the application will stream to the audio device. Recall that CD quality audio stream streams 44100 samples per second per channel to the output device. For efficiency's sake, samples are not streamed individually, but rather, in blocks of data. The block size property determines the number of samples per channel each block contains. Because audio is occuring at the sampling rate the block size will determine the latency of the audio stream because the system must wait for an entire block to be calcuated before any of its samples can be heard. So for a sampling rate of 441100 and block size 1024 the latency would be 1024/44100=0.023=23ms. Note that there isn't a single optimum block size; a larger block size is more efficient but less reponsive than using smaller block sizes. Juce provides the AudioDeviceSelectorComponent class that provides a simple GUI for configuring and selecting the host's audio/midi devices.
+
+The AudioSourcePlayer class streams samples from an audio source and routes them to an audio output device. An audio source is connected to a player by passing the source to the player's AudioSourcePlayer::setSource() function. When an audio source is set, the player first calls the source's prepareToPlay() function and then begins streaming audio from the source by continually calling AudioSource::getNextAudioBlock() . Passing nullptr to AudioSourcePlayer::setSource() will stop any current source from playing. Once stopped, the player calls AudioSource::releaseResources() to allow the source to "clean up" after playback.
+
+The AudioSource class is an abstract class whose subclasses generate a continuous stream of audio samples by implementing three pure virtual functions :
+
+prepareToPlay(): called to initialize a source just before it begins streaming samples.
+releaseResources(): called to perform cleanup just after an AudioSource stops streaming samples.
+getNextAudioBlock(): called to produce the next block of audio data.
+Wave Lab.app's MainComponent is a subclass of AudioSource so it will generate audio samples as well as provide the sliders, buttons, and menus to control the audio signal during playback.
+
+The Wave Lab.app streams audio in real time by routing the AudioSource output through the audio player to device manager. To estabish this connection the player is first added as a callback to the audi manager using the AudioDeviceManager::addAudioCallback() function. Once added, the device manager continuously calls the player to stream samples to it; the player, in turn, calls its AudioSource to generate the stream of samples it passes to the audio device. Note that these callbacks are happening in the system's audio thread, and not the main application thread, which means that the code executed the audio thread must take care to not directly affect GUI components, which are running in the main application thread.
